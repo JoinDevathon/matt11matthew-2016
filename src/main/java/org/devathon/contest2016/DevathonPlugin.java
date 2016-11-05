@@ -22,7 +22,7 @@ public class DevathonPlugin extends JavaPlugin implements Listener {
         getServer().getPluginManager().registerEvents(this, this);
         createDimensions();
     }
-
+ 
     private void createDimensions() {
         this.darkDimension = new DarkDimension();
     }
