@@ -25,4 +25,8 @@ public class TitleAPI {
     public void sendActionMessage(Player player, String message) {
         player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.translateAlternateColorCodes('&', message)));
     }
+
+    public void sendTitle(Player player, String message, String sub) {
+        player.sendTitle(ChatColor.translateAlternateColorCodes('&', message), ChatColor.translateAlternateColorCodes('&', sub));
+    }
 }

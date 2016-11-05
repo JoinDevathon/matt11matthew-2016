@@ -1,16 +1,21 @@
 package org.devathon.contest2016;
 
-import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerChatEvent;
+import com.google.common.collect.Maps;
+import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.devathon.contest2016.commands.CommandDimension;
+import org.devathon.contest2016.player.TitleAPI;
+import org.devathon.contest2016.space.SpaceListener;
 import org.devathon.contest2016.space.dimension.DarkDimension;
+import org.devathon.contest2016.space.dimension.Dimension;
 
-public class DevathonPlugin extends JavaPlugin implements Listener {
+import java.util.HashMap;
+import java.util.logging.Level;
+
+public class DevathonPlugin extends JavaPlugin  {
 
     private static DevathonPlugin instance;
-    private DarkDimension darkDimension;
+    public HashMap<String, Dimension> dimensionMap;
 
     public static DevathonPlugin getInstance() {
         return instance;
@@ -19,29 +24,38 @@ public class DevathonPlugin extends JavaPlugin implements Listener {
     @Override
     public void onEnable() {
         this.instance = this;
-        getServer().getPluginManager().registerEvents(this, this);
-        createDimensions();
-    }
- 
-    private void createDimensions() {
-        this.darkDimension = new DarkDimension();
+        actionTask();
+        getCommand("dimension").setExecutor(new CommandDimension());
+        getServer().getPluginManager().registerEvents(new SpaceListener(), this);
+        this.dimensionMap = Maps.newHashMap();
+        dimensionMap.put("Dark", new DarkDimension());
+
+        dimensionMap.values().forEach(dimension -> {
+            getLogger().log(Level.INFO, dimension.getName() + " Loaded");
+        });
     }
 
     @Override
     public void onDisable() {
     }
 
-    @EventHandler
-    public void onChat(PlayerChatEvent e) {
-        Player player = e.getPlayer();
-        switch (e.getMessage().toLowerCase()) {
-            case "dark":
-                darkDimension.enter(player);
-                break;
-            case "home":
-                darkDimension.leave(player);
-                break;
-        }
+    public Dimension getDimension(String name) {
+        return (dimensionMap.get(name) != null) ? dimensionMap.get(name) : null;
+    }
+
+    public void actionTask() {
+        getServer().getScheduler().scheduleAsyncRepeatingTask(this, ()-> {
+            Bukkit.getServer().getOnlinePlayers().forEach(player -> {
+                String world = player.getWorld().getName();
+                if (world.equals("world")) {
+                    world = "Main";
+                }
+                if (world.startsWith("Dimension_")) {
+                    world = world.split("Dimension_")[1] + " Dimension";
+                }
+                TitleAPI.getInstance().sendActionMessage(player, "&aCurrent World: &6" + world);
+            });
+        }, 5L, 5L);
     }
 }
 

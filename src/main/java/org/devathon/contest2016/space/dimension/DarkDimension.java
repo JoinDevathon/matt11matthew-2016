@@ -3,7 +3,7 @@ package org.devathon.contest2016.space.dimension;
 
 import org.bukkit.*;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
+import org.devathon.contest2016.DevathonPlugin;
 import org.devathon.contest2016.player.TitleAPI;
 
 /**
@@ -44,16 +44,22 @@ public class DarkDimension implements Dimension {
 
     @Override
     public void enter(Player player) {
+        if (player.getWorld().getName().equals(getWorld().getName())) {
+            return;
+        }
         player.teleport(world.getSpawnLocation());
-        player.getEquipment().setHelmet(new ItemStack(Material.JACK_O_LANTERN));
-        player.playSound(player.getLocation(), Sound.ENTITY_ENDERDRAGON_DEATH, 1.0F, 1.0F);
-        TitleAPI.getInstance().sendActionMessage(player, "&aYou now enter The Dark Dimension");
+        TitleAPI.getInstance().sendTitle(player, "&6Entering - Dark Dimension", "&7&o" + getInfo());
+        player.playSound(player.getLocation(), Sound.ENTITY_ENDERMEN_SCREAM, 1.0F, 1.0F);
+        DevathonPlugin.getInstance().getServer().getScheduler().scheduleSyncRepeatingTask(DevathonPlugin.getInstance(), () -> {
+            if (player.getWorld().getName().equals(getWorld().getName())) {
+                player.playSound(player.getLocation(), Sound.ENTITY_ENDERMEN_SCREAM, 1.0F, 1.0F);
+            }
+        }, 300L, 300L);
     }
 
     @Override
     public void leave(Player player) {
         player.teleport(Bukkit.getWorlds().get(0).getSpawnLocation());
-        player.getEquipment().setHelmet(new ItemStack(Material.AIR));
-        TitleAPI.getInstance().sendActionMessage(player, "&aYou have left The Dark Dimension");
+        TitleAPI.getInstance().sendTitle(player, "&cLeft - Dark Dimension", "&7&oSpawn world");
     }
 }
