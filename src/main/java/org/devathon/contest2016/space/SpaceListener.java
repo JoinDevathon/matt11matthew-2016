@@ -1,8 +1,13 @@
 package org.devathon.contest2016.space;
 
+import org.bukkit.Sound;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
+import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -32,4 +37,23 @@ public class SpaceListener implements Listener {
         }
     }
 
+    @EventHandler
+    public void onSwing(PlayerInteractEvent e) {
+        if (e.getAction() == Action.LEFT_CLICK_BLOCK) {
+            if (e.getPlayer().getItemInHand().getEnchantments().containsKey(Enchantment.DURABILITY)) {
+                e.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.SLOW_DIGGING, 60, 0));
+                e.getPlayer().playSound(e.getPlayer().getLocation(), Sound.BLOCK_ANVIL_HIT, 0.5F, 0.5F);
+
+            }
+        }
+    }
+
+    @EventHandler
+    public void onBreak(BlockBreakEvent e) {
+        Player player = e.getPlayer();
+        if (player.getItemInHand().getEnchantments().containsKey(Enchantment.DURABILITY)) {
+            player.playSound(player.getLocation(), Sound.BLOCK_ANVIL_BREAK, 1.0F, 1.0F);
+            e.getBlock().getDrops().forEach(itemStack -> itemStack.setAmount(itemStack.getAmount() * 2));
+        }
+    }
 }
